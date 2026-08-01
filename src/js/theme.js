@@ -47,3 +47,29 @@ function initTheme() {
 
 // Run immediately on load
 initTheme();
+
+// --- Font engine ---
+const FONTS = {
+  "courier": "'Courier New', monospace",
+  "jetbrains": "'JetBrains Mono', 'Courier New', monospace",
+  "vt323": "'VT323', 'Courier New', monospace"
+};
+
+const FONT_STORAGE_KEY = "labos-active-font";
+
+function applyFont(fontName) {
+  const fontStack = FONTS[fontName];
+  if (!fontStack) {
+    console.warn(`Font "${fontName}" not found, falling back to courier`);
+    return applyFont("courier");
+  }
+  document.documentElement.style.setProperty("--font-main", fontStack);
+  localStorage.setItem(FONT_STORAGE_KEY, fontName);
+}
+
+function getSavedFont() {
+  return localStorage.getItem(FONT_STORAGE_KEY) || "courier";
+}
+
+// Apply saved font on load too
+applyFont(getSavedFont());

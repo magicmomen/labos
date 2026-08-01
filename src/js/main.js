@@ -62,3 +62,37 @@ function renderThemePicker() {
 }
 
 renderThemePicker();
+
+// --- Font picker rendering ---
+const fontLabels = {
+  "courier": "Courier (Classic)",
+  "jetbrains": "JetBrains Mono",
+  "vt323": "VT323 (Pixel CRT)"
+};
+
+function renderFontPicker() {
+  const picker = document.getElementById("font-picker");
+  const active = getSavedFont();
+  picker.innerHTML = "";
+
+  Object.keys(fontLabels).forEach((fontName) => {
+    const swatch = document.createElement("div");
+    swatch.className = "theme-swatch" + (fontName === active ? " selected" : "");
+
+    const label = document.createElement("span");
+    label.className = "swatch-label";
+    label.style.fontFamily = FONTS[fontName];
+    label.textContent = fontLabels[fontName];
+
+    swatch.appendChild(label);
+
+    swatch.addEventListener("click", () => {
+      applyFont(fontName);
+      renderFontPicker();
+    });
+
+    picker.appendChild(swatch);
+  });
+}
+
+renderFontPicker();
