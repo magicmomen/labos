@@ -1,0 +1,33 @@
+:root {
+  --neon-green: #39ff14;
+  --bg-black: #0a0a0a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-black);
+  color: var(--neon-green);
+  font-family: 'Courier New', monospace;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crt-title {
+  font-size: 2.5rem;
+  letter-spacing: 0.3em;
+  text-shadow: 0 0 8px var(--neon-green), 0 0 16px var(--neon-green);
+}
+
+.subtitle {
+  text-align: center;
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
