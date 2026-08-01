@@ -91,3 +91,79 @@ body {
   font-size: 0.85rem;
   opacity: 0.5;
 }
+
+/* --- Screen toggling --- */
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
+.dashboard-grid.active {
+  display: grid;
+}
+
+/* --- Icon buttons (topbar/settings) --- */
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--border-glow);
+  color: var(--neon-green);
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* --- Settings screen --- */
+.settings-screen {
+  padding: 1rem;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.settings-section-title {
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  margin-bottom: 0.75rem;
+}
+
+.theme-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.theme-swatch {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-glow);
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--panel-bg);
+}
+
+.theme-swatch.selected {
+  box-shadow: 0 0 10px var(--border-glow);
+}
+
+.swatch-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.swatch-label {
+  font-size: 0.9rem;
+}

@@ -4,18 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LabOS</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=1" />
 </head>
 <body>
   <div class="crt-overlay"></div>
 
   <header class="topbar">
     <span class="topbar-logo">LABOS</span>
-    <span class="topbar-status">● ONLINE</span>
+    <button id="settings-btn" class="icon-btn">⚙ SETTINGS</button>
   </header>
 
-
-  <main id="app" class="dashboard-grid">
+  <main id="app" class="dashboard-grid screen active">
     <section class="widget">
       <h2 class="widget-title">Study Tracker</h2>
       <p class="widget-placeholder">Coming online...</p>
@@ -34,7 +33,17 @@
     </section>
   </main>
 
-  <script src="js/theme.js"></script>
-  <script src="js/main.js"></script>
+  <section id="settings-screen" class="screen settings-screen">
+    <div class="settings-header">
+      <h2>Settings</h2>
+      <button id="back-btn" class="icon-btn">← BACK</button>
+    </div>
+
+    <h3 class="settings-section-title">Theme</h3>
+    <div id="theme-picker" class="theme-picker"></div>
+  </section>
+
+  <script src="js/theme.js?v=1"></script>
+  <script src="js/main.js?v=1"></script>
 </body>
 </html>
