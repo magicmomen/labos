@@ -1,0 +1,28 @@
+{
+  "name": "labos",
+  "version": "1.0.0",
+  "description": "A retro cyberpunk research console — Android app built 100% phone-only in Termux.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/magicmomen/labos.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/magicmomen/labos/issues"
+  },
+  "homepage": "https://github.com/magicmomen/labos#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.0"
+  }
+}
