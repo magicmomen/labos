@@ -96,3 +96,61 @@ function renderFontPicker() {
 }
 
 renderFontPicker();
+
+// --- Study Tracker ---
+const SESSIONS_KEY = "labos-study-sessions";
+
+function getSessions() {
+  const raw = localStorage.getItem(SESSIONS_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveSessions(sessions) {
+  localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+}
+
+function renderSessions() {
+  const list = document.getElementById("session-list");
+  const sessions = getSessions();
+  list.innerHTML = "";
+
+  sessions.forEach((session) => {
+    const li = document.createElement("li");
+    li.className = "session-item";
+
+    const subjectSpan = document.createElement("span");
+    subjectSpan.className = "session-item-subject";
+    subjectSpan.textContent = session.subject;
+
+    const minutesSpan = document.createElement("span");
+    minutesSpan.className = "session-item-minutes";
+    minutesSpan.textContent = `${session.minutes} min`;
+
+    li.appendChild(subjectSpan);
+    li.appendChild(minutesSpan);
+    list.appendChild(li);
+  });
+}
+
+function addSession() {
+  const subjectInput = document.getElementById("subject-input");
+  const minutesInput = document.getElementById("minutes-input");
+
+  const subject = subjectInput.value.trim();
+  const minutes = parseInt(minutesInput.value, 10);
+
+  if (!subject || !minutes || minutes <= 0) {
+    return;
+  }
+
+  const sessions = getSessions();
+  sessions.unshift({ subject, minutes, timestamp: Date.now() });
+  saveSessions(sessions);
+  renderSessions();
+
+  subjectInput.value = "";
+  minutesInput.value = "";
+}
+
+document.getElementById("add-session-btn").addEventListener("click", addSession);
+renderSessions();
