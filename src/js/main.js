@@ -415,3 +415,222 @@ document.getElementById("break-duration-input").addEventListener("change", () =>
 });
 
 resetPomodoro();
+
+// --- Custom Widget Editor ---
+const CUSTOM_WIDGETS_KEY = "labos-custom-widgets";
+
+function getCustomWidgets() {
+  const raw = localStorage.getItem(CUSTOM_WIDGETS_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveCustomWidgets(widgets) {
+  localStorage.setItem(CUSTOM_WIDGETS_KEY, JSON.stringify(widgets));
+}
+
+function getWidgetDataKey(widgetId) {
+  return `labos-widget-data-${widgetId}`;
+}
+
+function getWidgetData(widgetId, defaultValue) {
+  const raw = localStorage.getItem(getWidgetDataKey(widgetId));
+  return raw ? JSON.parse(raw) : defaultValue;
+}
+
+function saveWidgetData(widgetId, data) {
+  localStorage.setItem(getWidgetDataKey(widgetId), JSON.stringify(data));
+}
+
+function openWidgetModal() {
+  document.getElementById("widget-modal").classList.add("active");
+}
+
+function closeWidgetModal() {
+  document.getElementById("widget-modal").classList.remove("active");
+  document.getElementById("widget-title-input").value = "";
+}
+
+function createCustomWidget() {
+  const title = document.getElementById("widget-title-input").value.trim();
+  const type = document.getElementById("widget-type-input").value;
+  const color = document.getElementById("widget-color-input").value;
+
+  if (!title) {
+    return;
+  }
+
+  const widgets = getCustomWidgets();
+  widgets.push({ id: Date.now(), title, type, color });
+  saveCustomWidgets(widgets);
+  closeWidgetModal();
+  renderCustomWidgets();
+}
+
+function deleteCustomWidget(id) {
+  const widgets = getCustomWidgets().filter((w) => w.id !== id);
+  saveCustomWidgets(widgets);
+  localStorage.removeItem(getWidgetDataKey(id));
+  renderCustomWidgets();
+}
+
+function buildNoteWidget(widget, body) {
+  const textarea = document.createElement("textarea");
+  textarea.className = "tracker-input journal-textarea";
+  textarea.value = getWidgetData(widget.id, "");
+  textarea.addEventListener("input", () => {
+    saveWidgetData(widget.id, textarea.value);
+  });
+  body.appendChild(textarea);
+}
+
+function buildCounterWidget(widget, body) {
+  const display = document.createElement("div");
+  display.className = "pomodoro-display";
+  const countSpan = document.createElement("span");
+  countSpan.id = `counter-value-${widget.id}`;
+  countSpan.style.fontSize = "2rem";
+  countSpan.textContent = getWidgetData(widget.id, 0);
+  display.appendChild(countSpan);
+
+  const controls = document.createElement("div");
+  controls.className = "tracker-form";
+
+  const minusBtn = document.createElement("button");
+  minusBtn.className = "icon-btn";
+  minusBtn.textContent = "−";
+  minusBtn.addEventListener("click", () => {
+    const current = getWidgetData(widget.id, 0) - 1;
+    saveWidgetData(widget.id, current);
+    countSpan.textContent = current;
+  });
+
+  const plusBtn = document.createElement("button");
+  plusBtn.className = "icon-btn";
+  plusBtn.textContent = "+";
+  plusBtn.addEventListener("click", () => {
+    const current = getWidgetData(widget.id, 0) + 1;
+    saveWidgetData(widget.id, current);
+    countSpan.textContent = current;
+  });
+
+  controls.appendChild(minusBtn);
+  controls.appendChild(plusBtn);
+  body.appendChild(display);
+  body.appendChild(controls);
+}
+
+function buildChecklistWidget(widget, body) {
+  const form = document.createElement("div");
+  form.className = "tracker-form";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "tracker-input";
+  input.placeholder = "New item...";
+
+  const addBtn = document.createElement("button");
+  addBtn.className = "icon-btn";
+  addBtn.textContent = "+ ADD";
+
+  const list = document.createElement("ul");
+  list.className = "session-list";
+
+  function renderItems() {
+    const items = getWidgetData(widget.id, []);
+    list.innerHTML = "";
+    items.forEach((item) => {
+      const li = document.createElement("li");
+      li.className = "session-item task-item" + (item.done ? " completed" : "");
+
+      const checkbox = document.createElement("span");
+      checkbox.className = "task-item-checkbox";
+      checkbox.textContent = item.done ? "✓" : "";
+
+      const label = document.createElement("span");
+      label.className = "task-item-label";
+      label.textContent = item.text;
+
+      const del = document.createElement("button");
+      del.className = "delete-btn";
+      del.textContent = "✕";
+      del.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const updated = getWidgetData(widget.id, []).filter((i) => i.id !== item.id);
+        saveWidgetData(widget.id, updated);
+        renderItems();
+      });
+
+      li.appendChild(checkbox);
+      li.appendChild(label);
+      li.appendChild(del);
+      li.addEventListener("click", () => {
+        const updated = getWidgetData(widget.id, []);
+        const found = updated.find((i) => i.id === item.id);
+        found.done = !found.done;
+        saveWidgetData(widget.id, updated);
+        renderItems();
+      });
+
+      list.appendChild(li);
+    });
+  }
+
+  addBtn.addEventListener("click", () => {
+    const text = input.value.trim();
+    if (!text) return;
+    const items = getWidgetData(widget.id, []);
+    items.unshift({ id: Date.now(), text, done: false });
+    saveWidgetData(widget.id, items);
+    input.value = "";
+    renderItems();
+  });
+
+  form.appendChild(input);
+  form.appendChild(addBtn);
+  body.appendChild(form);
+  body.appendChild(list);
+  renderItems();
+}
+
+function renderCustomWidgets() {
+  document.querySelectorAll(".custom-widget").forEach((el) => el.remove());
+
+  const widgets = getCustomWidgets();
+  const container = document.getElementById("app");
+  const addBtn = document.getElementById("add-widget-btn");
+
+  widgets.forEach((widget) => {
+    const section = document.createElement("section");
+    section.className = "widget custom-widget";
+    section.style.borderColor = widget.color;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "delete-btn custom-widget-remove";
+    removeBtn.textContent = "✕";
+    removeBtn.addEventListener("click", () => deleteCustomWidget(widget.id));
+
+    const titleEl = document.createElement("h2");
+    titleEl.className = "widget-title";
+    titleEl.style.color = widget.color;
+    titleEl.textContent = widget.title;
+
+    section.appendChild(removeBtn);
+    section.appendChild(titleEl);
+
+    if (widget.type === "note") {
+      buildNoteWidget(widget, section);
+    } else if (widget.type === "counter") {
+      buildCounterWidget(widget, section);
+    } else if (widget.type === "checklist") {
+      buildChecklistWidget(widget, section);
+    }
+
+    container.insertBefore(section, addBtn);
+  });
+}
+
+document.getElementById("add-widget-btn").addEventListener("click", openWidgetModal);
+document.getElementById("widget-cancel-btn").addEventListener("click", closeWidgetModal);
+document.getElementById("widget-create-btn").addEventListener("click", createCustomWidget);
+
+renderCustomWidgets();

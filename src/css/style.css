@@ -346,3 +346,55 @@ body {
   opacity: 0.7;
   margin-bottom: 0.3rem;
 }
+
+/* --- Add Widget button + modal --- */
+.add-widget-btn {
+  grid-column: 1 / -1;
+  padding: 0.75rem;
+  width: 100%;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-box {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-glow);
+  border-radius: 6px;
+  padding: 1.25rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.modal-box h3 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.modal-box .tracker-input {
+  width: 100%;
+  margin-bottom: 0.6rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.custom-widget-remove {
+  float: right;
+}
