@@ -281,3 +281,55 @@ function toggleTask(id) {
 
 document.getElementById("add-task-btn").addEventListener("click", addTask);
 renderTasks();
+
+// --- Pomodoro Timer ---
+const POMODORO_DURATION = 25 * 60; // 25 minutes in seconds
+let pomodoroSecondsLeft = POMODORO_DURATION;
+let pomodoroIntervalId = null;
+
+function formatTime(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function renderPomodoro() {
+  document.getElementById("pomodoro-time").textContent = formatTime(pomodoroSecondsLeft);
+  const percentElapsed = ((POMODORO_DURATION - pomodoroSecondsLeft) / POMODORO_DURATION) * 100;
+  document.getElementById("pomodoro-progress-fill").style.width = `${percentElapsed}%`;
+}
+
+function pomodoroTick() {
+  if (pomodoroSecondsLeft <= 0) {
+    clearInterval(pomodoroIntervalId);
+    pomodoroIntervalId = null;
+    return;
+  }
+  pomodoroSecondsLeft -= 1;
+  renderPomodoro();
+}
+
+function startPomodoro() {
+  if (pomodoroIntervalId !== null) {
+    return; // already running, don't stack a second interval
+  }
+  pomodoroIntervalId = setInterval(pomodoroTick, 1000);
+}
+
+function pausePomodoro() {
+  if (pomodoroIntervalId !== null) {
+    clearInterval(pomodoroIntervalId);
+    pomodoroIntervalId = null;
+  }
+}
+
+function resetPomodoro() {
+  pausePomodoro();
+  pomodoroSecondsLeft = POMODORO_DURATION;
+  renderPomodoro();
+}
+
+document.getElementById("pomodoro-start-btn").addEventListener("click", startPomodoro);
+document.getElementById("pomodoro-pause-btn").addEventListener("click", pausePomodoro);
+document.getElementById("pomodoro-reset-btn").addEventListener("click", resetPomodoro);
+renderPomodoro();
