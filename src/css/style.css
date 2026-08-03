@@ -249,3 +249,30 @@ body {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* --- Task Manager widget --- */
+.task-item {
+  cursor: pointer;
+}
+
+.task-item.completed .task-item-label {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.task-item-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border-glow);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+}
+
+.task-item-label {
+  flex: 1;
+  margin-left: 0.5rem;
+}

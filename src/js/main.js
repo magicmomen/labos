@@ -214,3 +214,70 @@ function addJournalEntry() {
 
 document.getElementById("add-entry-btn").addEventListener("click", addJournalEntry);
 renderJournal();
+
+// --- Task Manager ---
+const TASKS_KEY = "labos-tasks";
+
+function getTasks() {
+  const raw = localStorage.getItem(TASKS_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveTasks(tasks) {
+  localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+}
+
+function renderTasks() {
+  const list = document.getElementById("task-list");
+  const tasks = getTasks();
+  list.innerHTML = "";
+
+  tasks.forEach((task) => {
+    const li = document.createElement("li");
+    li.className = "session-item task-item" + (task.completed ? " completed" : "");
+
+    const checkbox = document.createElement("span");
+    checkbox.className = "task-item-checkbox";
+    checkbox.textContent = task.completed ? "✓" : "";
+
+    const label = document.createElement("span");
+    label.className = "task-item-label";
+    label.textContent = task.text;
+
+    li.appendChild(checkbox);
+    li.appendChild(label);
+
+    li.addEventListener("click", () => toggleTask(task.id));
+
+    list.appendChild(li);
+  });
+}
+
+function addTask() {
+  const input = document.getElementById("task-input");
+  const text = input.value.trim();
+
+  if (!text) {
+    return;
+  }
+
+  const tasks = getTasks();
+  tasks.unshift({ id: Date.now(), text, completed: false });
+  saveTasks(tasks);
+  renderTasks();
+
+  input.value = "";
+}
+
+function toggleTask(id) {
+  const tasks = getTasks();
+  const task = tasks.find((t) => t.id === id);
+  if (task) {
+    task.completed = !task.completed;
+    saveTasks(tasks);
+    renderTasks();
+  }
+}
+
+document.getElementById("add-task-btn").addEventListener("click", addTask);
+renderTasks();
