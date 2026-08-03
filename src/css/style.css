@@ -306,3 +306,43 @@ body {
   box-shadow: 0 0 6px var(--neon-green);
   transition: width 1s linear;
 }
+
+/* --- Delete buttons --- */
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--neon-green);
+  opacity: 0.5;
+  font-size: 1rem;
+  padding: 0 0.3rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.delete-btn:active {
+  opacity: 1;
+}
+
+/* --- Session item layout fix for delete button --- */
+.session-item {
+  gap: 0.5rem;
+}
+
+.journal-entry {
+  position: relative;
+}
+
+.journal-entry .delete-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+}
+
+/* --- Pomodoro mode label + custom duration inputs --- */
+.pomodoro-mode-label {
+  text-align: center;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  opacity: 0.7;
+  margin-bottom: 0.3rem;
+}

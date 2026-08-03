@@ -54,7 +54,7 @@ function renderThemePicker() {
 
     swatch.addEventListener("click", () => {
       applyTheme(themeName);
-      renderThemePicker(); // re-render to update "selected" highlight
+      renderThemePicker();
     });
 
     picker.appendChild(swatch);
@@ -126,8 +126,17 @@ function renderSessions() {
     minutesSpan.className = "session-item-minutes";
     minutesSpan.textContent = `${session.minutes} min`;
 
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    deleteBtn.textContent = "✕";
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteSession(session.id);
+    });
+
     li.appendChild(subjectSpan);
     li.appendChild(minutesSpan);
+    li.appendChild(deleteBtn);
     list.appendChild(li);
   });
 }
@@ -144,12 +153,18 @@ function addSession() {
   }
 
   const sessions = getSessions();
-  sessions.unshift({ subject, minutes, timestamp: Date.now() });
+  sessions.unshift({ id: Date.now(), subject, minutes, timestamp: Date.now() });
   saveSessions(sessions);
   renderSessions();
 
   subjectInput.value = "";
   minutesInput.value = "";
+}
+
+function deleteSession(id) {
+  const sessions = getSessions().filter((s) => s.id !== id);
+  saveSessions(sessions);
+  renderSessions();
 }
 
 document.getElementById("add-session-btn").addEventListener("click", addSession);
@@ -190,8 +205,17 @@ function renderJournal() {
     bodySpan.className = "journal-entry-body";
     bodySpan.textContent = entry.body;
 
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    deleteBtn.textContent = "✕";
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteJournalEntry(entry.id);
+    });
+
     li.appendChild(dateSpan);
     li.appendChild(bodySpan);
+    li.appendChild(deleteBtn);
     list.appendChild(li);
   });
 }
@@ -205,11 +229,17 @@ function addJournalEntry() {
   }
 
   const entries = getJournalEntries();
-  entries.unshift({ body, timestamp: Date.now() });
+  entries.unshift({ id: Date.now(), body, timestamp: Date.now() });
   saveJournalEntries(entries);
   renderJournal();
 
   input.value = "";
+}
+
+function deleteJournalEntry(id) {
+  const entries = getJournalEntries().filter((e) => e.id !== id);
+  saveJournalEntries(entries);
+  renderJournal();
 }
 
 document.getElementById("add-entry-btn").addEventListener("click", addJournalEntry);
@@ -244,8 +274,17 @@ function renderTasks() {
     label.className = "task-item-label";
     label.textContent = task.text;
 
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    deleteBtn.textContent = "✕";
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteTask(task.id);
+    });
+
     li.appendChild(checkbox);
     li.appendChild(label);
+    li.appendChild(deleteBtn);
 
     li.addEventListener("click", () => toggleTask(task.id));
 
@@ -279,13 +318,31 @@ function toggleTask(id) {
   }
 }
 
+function deleteTask(id) {
+  const tasks = getTasks().filter((t) => t.id !== id);
+  saveTasks(tasks);
+  renderTasks();
+}
+
 document.getElementById("add-task-btn").addEventListener("click", addTask);
 renderTasks();
 
-// --- Pomodoro Timer ---
-const POMODORO_DURATION = 25 * 60; // 25 minutes in seconds
-let pomodoroSecondsLeft = POMODORO_DURATION;
+
+// --- Pomodoro Timer (with custom durations + break mode) ---
+let pomodoroMode = "focus"; // "focus" or "break"
+let pomodoroSecondsLeft = 25 * 60;
+let pomodoroTotalSeconds = 25 * 60;
 let pomodoroIntervalId = null;
+
+function getFocusDuration() {
+  const val = parseInt(document.getElementById("focus-duration-input").value, 10);
+  return (val && val > 0) ? val * 60 : 25 * 60;
+}
+
+function getBreakDuration() {
+  const val = parseInt(document.getElementById("break-duration-input").value, 10);
+  return (val && val > 0) ? val * 60 : 5 * 60;
+}
 
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -295,14 +352,22 @@ function formatTime(totalSeconds) {
 
 function renderPomodoro() {
   document.getElementById("pomodoro-time").textContent = formatTime(pomodoroSecondsLeft);
-  const percentElapsed = ((POMODORO_DURATION - pomodoroSecondsLeft) / POMODORO_DURATION) * 100;
+  document.getElementById("pomodoro-mode-label").textContent =
+    pomodoroMode === "focus" ? "FOCUS" : "BREAK";
+  const percentElapsed = ((pomodoroTotalSeconds - pomodoroSecondsLeft) / pomodoroTotalSeconds) * 100;
   document.getElementById("pomodoro-progress-fill").style.width = `${percentElapsed}%`;
+}
+
+function switchPomodoroMode() {
+  pomodoroMode = pomodoroMode === "focus" ? "break" : "focus";
+  pomodoroTotalSeconds = pomodoroMode === "focus" ? getFocusDuration() : getBreakDuration();
+  pomodoroSecondsLeft = pomodoroTotalSeconds;
+  renderPomodoro();
 }
 
 function pomodoroTick() {
   if (pomodoroSecondsLeft <= 0) {
-    clearInterval(pomodoroIntervalId);
-    pomodoroIntervalId = null;
+    switchPomodoroMode();
     return;
   }
   pomodoroSecondsLeft -= 1;
@@ -311,7 +376,7 @@ function pomodoroTick() {
 
 function startPomodoro() {
   if (pomodoroIntervalId !== null) {
-    return; // already running, don't stack a second interval
+    return;
   }
   pomodoroIntervalId = setInterval(pomodoroTick, 1000);
 }
@@ -325,11 +390,28 @@ function pausePomodoro() {
 
 function resetPomodoro() {
   pausePomodoro();
-  pomodoroSecondsLeft = POMODORO_DURATION;
+  pomodoroMode = "focus";
+  pomodoroTotalSeconds = getFocusDuration();
+  pomodoroSecondsLeft = pomodoroTotalSeconds;
   renderPomodoro();
 }
 
 document.getElementById("pomodoro-start-btn").addEventListener("click", startPomodoro);
 document.getElementById("pomodoro-pause-btn").addEventListener("click", pausePomodoro);
 document.getElementById("pomodoro-reset-btn").addEventListener("click", resetPomodoro);
-renderPomodoro();
+document.getElementById("focus-duration-input").addEventListener("change", () => {
+  if (pomodoroMode === "focus" && pomodoroIntervalId === null) {
+    pomodoroTotalSeconds = getFocusDuration();
+    pomodoroSecondsLeft = pomodoroTotalSeconds;
+    renderPomodoro();
+  }
+});
+document.getElementById("break-duration-input").addEventListener("change", () => {
+  if (pomodoroMode === "break" && pomodoroIntervalId === null) {
+    pomodoroTotalSeconds = getBreakDuration();
+    pomodoroSecondsLeft = pomodoroTotalSeconds;
+    renderPomodoro();
+  }
+});
+
+resetPomodoro();
