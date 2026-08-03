@@ -1,5 +1,9 @@
 {
   "appId": "com.labos.app",
   "appName": "LabOS",
-  "webDir": "src"
+  "webDir": "src",
+  "server": {
+    "url": "http://localhost:8080",
+    "cleartext": true
+  }
 }
