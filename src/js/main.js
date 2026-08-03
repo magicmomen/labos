@@ -154,3 +154,63 @@ function addSession() {
 
 document.getElementById("add-session-btn").addEventListener("click", addSession);
 renderSessions();
+
+// --- Research Journal ---
+const JOURNAL_KEY = "labos-journal-entries";
+
+function getJournalEntries() {
+  const raw = localStorage.getItem(JOURNAL_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveJournalEntries(entries) {
+  localStorage.setItem(JOURNAL_KEY, JSON.stringify(entries));
+}
+
+function formatEntryDate(timestamp) {
+  const d = new Date(timestamp);
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) +
+    " " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
+
+function renderJournal() {
+  const list = document.getElementById("journal-list");
+  const entries = getJournalEntries();
+  list.innerHTML = "";
+
+  entries.forEach((entry) => {
+    const li = document.createElement("li");
+    li.className = "session-item journal-entry";
+
+    const dateSpan = document.createElement("span");
+    dateSpan.className = "journal-entry-date";
+    dateSpan.textContent = formatEntryDate(entry.timestamp);
+
+    const bodySpan = document.createElement("span");
+    bodySpan.className = "journal-entry-body";
+    bodySpan.textContent = entry.body;
+
+    li.appendChild(dateSpan);
+    li.appendChild(bodySpan);
+    list.appendChild(li);
+  });
+}
+
+function addJournalEntry() {
+  const input = document.getElementById("journal-input");
+  const body = input.value.trim();
+
+  if (!body) {
+    return;
+  }
+
+  const entries = getJournalEntries();
+  entries.unshift({ body, timestamp: Date.now() });
+  saveJournalEntries(entries);
+  renderJournal();
+
+  input.value = "";
+}
+
+document.getElementById("add-entry-btn").addEventListener("click", addJournalEntry);
+renderJournal();
